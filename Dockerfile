@@ -1,7 +1,11 @@
-FROM openjdk:11
-VOLUME /tmp
-EXPOSE 8080
-ARG JAR_FILE=target/spring-petclinic-3.2.0-SNAPSHOT.jar
-ADD ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+FROM eclipse-temurin:17-jdk-jammy
 
+WORKDIR /app
+
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:resolve
+
+COPY src ./src
+
+CMD ["./mvnw", "spring-boot:run"]
