@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+    stages {
+   /*     stage ('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+*/
+        stage ('docker image') {
+            steps {
+            //agent { dockerfile true }
+    withCredentials([file(credentialsId: 'gcp-project-auth', variable: 'GCLOUD_CREDS')])  {
+
+                sh """
+                    gcloud init --console-only
+                    gcloud auth activate-service-account --key-file="${GCLOUD_CREDS}"
+                    gcloud config set account third-party-apps@dotted-byway-411905.iam.gserviceaccount.com
+                    gcloud iam workforce-pools create-login-config AUDIENCE --output-file=login-config.json --activate
+                    gcloud auth application-default login --no-browser --login-config=login-config.json --quiet
+                    gcloud config set project dotted-byway-411905
+                """
+
+            }
+            }
+
+        }
+    }
+}
+

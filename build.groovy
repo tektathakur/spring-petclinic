@@ -1,25 +1,22 @@
 pipeline {
-    agent none
+    agent any
     tools {
         maven 'maven-3.5.2'
     }
     stages {
+
         stage ('Build') {
             steps {
                 sh 'mvn clean package'
             }
         }
 
-        stage ('docker image') {
-            agent { dockerfile true }
+        stage ('Build & Push docker image') {
             steps {
                 sh """
-                gcloud auth login
-                gcloud auth configure-docker
-                
-                docker build -t gcr.io/dotted-byway-411905/spring-petclinic:latest .
-                docker push gcr.io/dotted-byway-411905/spring-petclinic:latest
-            """
+                    docker build -t tektathakur/docker-images:spring-petclinic .
+                    docker push tektathakur/docker-images:spring-petclinic
+                """
             }
         }
     }
