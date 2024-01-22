@@ -1,0 +1,32 @@
+image: maven:3.8.5-openjdk-17
+variables:
+  CONTAINER_IMAGE: spring-petclinic
+  DOCKER_REGISTRY: us-central1-docker.pkg.dev/dotted-byway-411905/docker-images
+
+build:
+  stage: build
+  script:
+    - "mvn clean install -Dmaven.test.skip=true"
+  artifacts:
+    expire_in: 2 week
+    when: on_success
+    paths:
+      - target/*.jar
+
+buildimage:
+  stage: build
+  image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375/
+    DOCKER_DRIVER: overlay2
+  before_script:
+    - cat $GCLOUD_SERVICE_KEY | docker login -u _json_key --password-stdin https://us-central1-docker.pkg.dev/dotted-byway-411905
+    - docker info
+  script:
+    - docker build --tag $DOCKER_REGISTRY/$CONTAINER_IMAGE:latest .
+    - docker push $DOCKER_REGISTRY/$CONTAINER_IMAGE:latest
+  when: always
+  needs:
+    - build
