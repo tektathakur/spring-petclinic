@@ -20,6 +20,6 @@ provider "kubernetes" {
   config_path = "/Users/anujkumarsingh/.kube/config"
 }
 
-module "k8s-workload" {
+/*module "k8s-workload" {
   source = "./modules/k8s-workload"
-}
+}*/
